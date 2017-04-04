@@ -29,12 +29,12 @@ var image = [];
 for (var i = 0; i < size[1]; i++) {
 	var tempRow = [];
 	for (var j = 0; j < size[0]; j++) {
-		tempCol.push([0, 0, 0]);
+		tempRow.push([0, 0, 0]);
 	}
 }
-var port = new SerialPort(process.env.SERIAL_PORT, {baudRate: 115200});
+/*var port = new SerialPort(process.env.SERIAL_PORT, {baudRate: 115200});
 port.on('open', function () {
 	setInterval(function () {
 		var outString = '';
 	}, !isNaN(process.env.FPS) ? 1 / parseInt(process.env.FPS) * 1000 : 10);
-});
+});*/
