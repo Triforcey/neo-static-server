@@ -7,6 +7,7 @@ for (var i = 0; i < pins.length; i++) {
 }
 
 var size = [parseInt(process.env.WIDTH) || 8, parseInt(process.env.HEIGHT) || 8];
+var amountOfBits = parseInt(process.env.BITS) || 8;
 var image = [];
 for (var i = 0; i < size[1]; i++) {
 	var tempRow = [];
@@ -21,7 +22,6 @@ port.on('open', function () {
 	var pixelIndex = 0;
 	var byteIndex = 0;
 	setInterval(function () {
-		if (!pixelIndex && !byteIndex) serialOut = '';
 		var output = 0;
 		var digitValue = 1;
 		var possiblePins = [];
@@ -29,10 +29,10 @@ port.on('open', function () {
 			possiblePins.push(i);
 		}
 		var selectedPins = [];
-		for (var i = 0; i < 8; i++) {
+		for (var i = 0; i < amountOfBits; i++) {
 			selectedPins.push(pins[possiblePins.splice(Math.floor(Math.random() * possiblePins.length), 1)[0]]);
 		}
-		for (var i = 0; i < 8; i++) {
+		for (var i = 0; i < amountOfBits; i++) {
 			if (rpio.read(selectedPins[i])) output += digitValue;
 			digitValue *= 2;
 		}
@@ -48,7 +48,8 @@ port.on('open', function () {
 			serialOut += '\n';
 			pixelIndex = 0;
 			byteIndex = 0;
-			console.log(serialOut);
+			port.write(serialOut);
+			serialOut = '';
 		}
 	}, parseInt(process.env.PIN_DELAY) || 10);
 });
