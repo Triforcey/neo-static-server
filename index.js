@@ -3,20 +3,28 @@ var gpio = require('rpi-gpio');
 // Enough pins to generate two octals per instant.
 var pins = [7, 11, 12, 13, 15, 16, 18, 22, 29, 31, 32, 33, 35, 36, 37, 38];
 var pinsReady = 0;
+process.on('SIGINT', function () {
+	gpio.destroy(function () {
+		process.exit();
+	});
+});
 function pinIsReady() {
 	pinsReady++;
-	if (pinsReady == 8) {
+	if (pinsReady == 16) {
 		setInterval(function () {
 			var output = 0;
 			var digitValue = 1;
+			var pinsRead = 0;
 			for (var i = 0; i < 8; i++) {
 				gpio.read(pins[i], function (err, val) {
-					output += val * digitValue;
+					console.log(val);
+					if (val) output += digitValue;
 					digitValue *= 2;
+					pinsRead++;
+					if (pinsRead == 8) console.log(output);
 				});
 			}
-			console.log(output);
-		}, parseInt(process.env.PIN_DELAY) || 10);
+		}, parseInt(process.env.PIN_DELAY) || 1000);
 	}
 }
 
