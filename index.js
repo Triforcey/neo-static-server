@@ -51,5 +51,5 @@ port.on('open', function () {
 			port.write(serialOut);
 			serialOut = '';
 		}
-	}, parseInt(process.env.PIN_DELAY) || 10);
+	}, parseInt(process.env.PIN_DELAY) || 1);
 });
