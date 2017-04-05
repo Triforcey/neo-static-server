@@ -5,23 +5,6 @@ var pins = [7, 11, 12, 13, 15, 16, 18, 22, 29, 31, 32, 33, 35, 36, 37, 38];
 for (var i = 0; i < pins.length; i++) {
 	rpio.open(pins[i], rpio.INPUT, rpio.PULL_OFF);
 }
-setInterval(function () {
-	var output = 0;
-	var digitValue = 1;
-	var possiblePins = [];
-	for (var i = 0; i < pins.length; i++) {
-		possiblePins.push(i);
-	}
-	var selectedPins = [];
-	for (var i = 0; i < 8; i++) {
-		selectedPins.push(pins[possiblePins.splice(Math.floor(Math.random() * possiblePins.length), 1)[0]]);
-	}
-	for (var i = 0; i < 8; i++) {
-		if (rpio.read(selectedPins[i])) output += digitValue;
-		digitValue *= 2;
-	}
-	console.log(output);
-}, parseInt(process.env.PIN_DELAY) || 10);
 
 var size = [parseInt(process.env.WIDTH) || 8, parseInt(process.env.HEIGHT) || 8];
 var image = [];
@@ -31,9 +14,38 @@ for (var i = 0; i < size[1]; i++) {
 		tempRow.push([0, 0, 0]);
 	}
 }
-/*var port = new SerialPort(process.env.SERIAL_PORT, {baudRate: 115200});
+
+var port = new SerialPort(process.env.SERIAL_PORT, {baudRate: 115200});
 port.on('open', function () {
+	var serialOut = '';
+	var pixelIndex = 0;
+	var byteIndex = 0;
 	setInterval(function () {
-		var outString = '';
-	}, !isNaN(process.env.FPS) ? 1 / parseInt(process.env.FPS) * 1000 : 10);
-});*/
+		if (!pixelIndex && !byteIndex) serialOut = '';
+		var output = 0;
+		var digitValue = 1;
+		var possiblePins = [];
+		for (var i = 0; i < pins.length; i++) {
+			possiblePins.push(i);
+		}
+		var selectedPins = [];
+		for (var i = 0; i < 8; i++) {
+			selectedPins.push(pins[possiblePins.splice(Math.floor(Math.random() * possiblePins.length), 1)[0]]);
+		}
+		for (var i = 0; i < 8; i++) {
+			if (rpio.read(selectedPins[i])) output += digitValue;
+			digitValue *= 2;
+		}
+		serialOut += output;
+		if (byteIndex < 2) serialOut += '-';
+		else if (pixelIndex < size[0] * size [1] - 1) {
+			serialOut += ',';
+			byteIndex = 0;
+		} else {
+			serialOut += '\n';
+			pixelIndex = 0;
+			byteIndex = 0;
+			console.log(serialOut);
+		}
+	}, parseInt(process.env.PIN_DELAY) || 10);
+});
