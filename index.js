@@ -1,36 +1,26 @@
 var SerialPort = require('serialport');
-var gpio = require('rpi-gpio');
+var rpio = require('rpio');
 // Enough pins to generate two octals per instant.
 var pins = [7, 11, 12, 13, 15, 16, 18, 22, 29, 31, 32, 33, 35, 36, 37, 38];
 var pinsReady = 0;
-process.on('SIGINT', function () {
-	gpio.destroy(function () {
-		process.exit();
-	});
-});
-function pinIsReady() {
-	pinsReady++;
-	if (pinsReady == 16) {
-		setInterval(function () {
-			var output = 0;
-			var digitValue = 1;
-			var pinsRead = 0;
-			for (var i = 0; i < 8; i++) {
-				gpio.read(pins[i], function (err, val) {
-					console.log(val);
-					if (val) output += digitValue;
-					digitValue *= 2;
-					pinsRead++;
-					if (pinsRead == 8) console.log(output);
-				});
-			}
-		}, parseInt(process.env.PIN_DELAY) || 1000);
+/*process.on('SIGINT', function () {
+	for (var i = 0; i < pins.length; i++) {
+		rpio.close(pins[i]);
 	}
-}
-
+});*/
 for (var i = 0; i < pins.length; i++) {
-	gpio.setup(pins[i], gpio.DIR_IN, pinIsReady);
+	rpio.open(pins[i], rpio.INPUT);
 }
+setInterval(function () {
+	var output = 0;
+	var digitValue = 1;
+	var pinsRead = 0;
+	for (var i = 0; i < 8; i++) {
+		if (rpio.read(pins[i])) output += digitValue;
+		digitValue *= 2;
+	}
+	console.log(output);
+}, parseInt(process.env.PIN_DELAY) || 1000);
 
 var size = [parseInt(process.env.WIDTH) || 8, parseInt(process.env.HEIGHT) || 8];
 var image = [];
