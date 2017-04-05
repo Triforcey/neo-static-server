@@ -1,7 +1,7 @@
 var SerialPort = require('serialport');
 var rpio = require('rpio');
 // Enough pins to generate two octals per instant.
-var pins = [7, 11, 12, 13, 15, 16, 18, 22, 29, 31, 32, 33, 35, 36, 37, 38];
+var pins = [7, 11, 12, 13, 15, 16, 18, 22, 29, 31, 32, 33, 35, 36, 37, 38, 40];
 for (var i = 0; i < pins.length; i++) {
 	rpio.open(pins[i], rpio.INPUT, rpio.PULL_OFF);
 }
@@ -37,10 +37,13 @@ port.on('open', function () {
 			digitValue *= 2;
 		}
 		serialOut += output;
-		if (byteIndex < 2) serialOut += '-';
-		else if (pixelIndex < size[0] * size [1] - 1) {
+		if (byteIndex < 2) {
+			serialOut += '-';
+			byteIndex++;
+		} else if (pixelIndex < size[0] * size [1] - 1) {
 			serialOut += ',';
 			byteIndex = 0;
+			pixelIndex++;
 		} else {
 			serialOut += '\n';
 			pixelIndex = 0;
